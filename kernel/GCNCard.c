@@ -13,7 +13,7 @@ extern vu32 TRIGame;
 static u8 *const GCNCard_base = (u8*)(0x11000000);
 
 typedef struct _GCNCard_ctx {
-	char filename[0x20];    // Memory Card filename.
+	char filename[0x80];    // Memory Card filename.
 	u8 *base;               // Base address.
 	u32 size;               // Size, in bytes.
 	u32 code;               // Memory card "code".
@@ -86,7 +86,14 @@ int GCNCard_Load(int slot)
 	}
 
 	// Get the Game ID.
-	const u32 GameID = ConfigGetGameID();
+	const char *GameID = ConfigGetGameFileName();
+	u32 GameID_len;
+	//search the string backwards for '.'
+	for (GameID_len = strlen(GameID); GameID_len > 0; --GameID_len)
+	{
+		if (GameID[GameID_len] == '.')
+			break;
+	}
 
 	// Set up the Memory Card context.
 	GCNCard_ctx *const ctx = &memCard[slot];
@@ -120,8 +127,8 @@ int GCNCard_Load(int slot)
 	else
 	{
 		// Single mode. One card per game.
-		memcpy(fname_ptr, &GameID, 4);
-		fname_ptr += 4;
+		memcpy(fname_ptr, GameID, GameID_len);
+		fname_ptr += GameID_len;
 
 #ifdef GCNCARD_ENABLE_SLOT_B
 		if (slot)

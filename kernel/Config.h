@@ -55,6 +55,23 @@ static inline char *ConfigGetGamePath(void)
 	return ncfg->GamePath;
 }
 
+static inline char *ConfigGetGameFileName(void)
+{
+	u32 slash_pos;
+	char *TempDiscName = ncfg->GamePath;
+
+	//search the string backwards for '/'
+	for (slash_pos = strlen(TempDiscName); slash_pos > 0; --slash_pos)
+	{
+		if (TempDiscName[slash_pos] == '/')
+			break;
+	}
+	slash_pos++;
+
+	TempDiscName += slash_pos;
+	return TempDiscName;
+}
+
 static inline const char *ConfigGetCheatPath(void)
 {
 	return ncfg->CheatPath;

@@ -1064,8 +1064,8 @@ int main(int argc, char **argv)
 		snprintf(BasePath, sizeof(BasePath), "%s:/saves", GetRootDevice());
 		f_mkdir_char(BasePath);
 
-		char MemCardName[8];
-		memset(MemCardName, 0, 8);
+		char MemCardName[104];
+		memset(MemCardName, 0, 104);
 		if ( ncfg->Config & NIN_CFG_MC_MULTI )
 		{
 			// "Multi" mode is enabled.
@@ -1090,10 +1090,29 @@ int main(int argc, char **argv)
 		else
 		{
 			// One card per game.
-			memcpy(MemCardName, &(ncfg->GameID), 4);
+			u32 slash_pos, name_len;
+			char *TempDiscName = ncfg->GamePath;
+
+			//search the string backwards for '/'
+			for (slash_pos = strlen(TempDiscName); slash_pos > 0; --slash_pos)
+			{
+				if (TempDiscName[slash_pos] == '/')
+					break;
+			}
+			slash_pos++;
+
+			TempDiscName += slash_pos;
+			const char *DiscName = TempDiscName;
+			//search the string backwards for '.'
+			for (name_len = strlen(DiscName); name_len > 0; --name_len)
+			{
+				if (DiscName[name_len] == '.')
+					break;
+			}
+			memcpy(MemCardName, DiscName, name_len);
 		}
 
-		char MemCard[32];
+		char MemCard[128];
 		snprintf(MemCard, sizeof(MemCard), "%s/%s.raw", BasePath, MemCardName);
 		gprintf("Using %s as Memory Card.\r\n", MemCard);
 		FIL f;
